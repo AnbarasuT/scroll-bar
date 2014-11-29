@@ -77,3 +77,122 @@ function setScrollerProp(scrollButton,readScroller) {
 	catch(e){}
 }
 
+
+
+
+
+drag.js
+==========
+
+
+/* Drag.js
+ * Developed by Lapiz
+ * Version 0.8
+ * 30.06.14
+ *
+ * -Drag within the parent object.
+ *
+ *
+ */
+
+
+window.Drag = function(element, options){
+    this.element = element;
+    if (!this.element || !this.element.length) return;
+    this.options = options ? options : {};
+    this.options.axis = (this.options.axis == "x" || this.options.axis == "y") ? this.options.axis : "both";
+    
+    //Private Vars
+    this.isTouchDown = false;
+    this.downTouchPos = null;
+    this.downElementPos = null;
+    this.touchedElement;
+    
+    this.init();
+}
+
+window.Drag.prototype = {
+    init:function(){
+        var isTouch = this.isTouchDevice();
+        var _this = this;
+        this.element.css({"position":"absolute"});
+        if (isTouch) {
+            this.element.bind("touchstart", function(event){ _this.onTouchStart(event, $(this)); });
+            $(window).bind("touchmove", function(event){ _this.onTouchMove(event); });
+            $(window).bind("touchend", function(event){ _this.onTouchEnd(event); });
+        }
+        else {
+            this.element.bind("mousedown", function(event){ _this.onTouchStart(event, $(this)); });
+            $(window).bind("mousemove", function(event){ _this.onTouchMove(event); });
+            $(window).bind("mouseup", function(event){ _this.onTouchEnd(event); });
+        }
+    },
+    onTouchStart:function(event, element){
+        var touches = this.touchCoordsFromEvent(event, true);
+        if (touches.length == 1) {
+            event.preventDefault();
+            this.isTouchDown = true;
+            this.downTouchPos = touches[0];
+            this.downElementPos = {"x":element.position().left, "y":element.position().top};
+            this.touchedElement = element;
+            this.OnStart();
+        }
+        else this.isTouchDown = false;
+    },
+    onTouchMove:function(event){
+        var touches = this.touchCoordsFromEvent(event, false);
+        if (this.isTouchDown && touches.length == 1) {
+            event.preventDefault();
+            var element = this.touchedElement;
+            var positionVariation = {x:0, y:0};
+            var elementNewPos = {x:this.downElementPos.x, y:this.downElementPos.y};
+            if (this.options.axis == "both" || this.options.axis == "x") positionVariation.x = touches[0].x - this.downTouchPos.x;
+            if (this.options.axis == "both" || this.options.axis == "y") positionVariation.y = touches[0].y - this.downTouchPos.y;
+            var parentElement = element.parent();
+            var maxX = parentElement.width()-element.outerWidth(true);
+            var maxY = parentElement.height()-element.outerHeight(true);
+            elementNewPos.x += positionVariation.x;
+            elementNewPos.y += positionVariation.y;
+            if (elementNewPos.x < 0) elementNewPos.x = 0;
+            else if (elementNewPos.x > maxX) elementNewPos.x = maxX;
+            if (elementNewPos.y < 0) elementNewPos.y = 0;
+            else if (elementNewPos.y > maxY) elementNewPos.y = maxY;
+            if (this.options.axis == "both") element.css({"left":elementNewPos.x+"px", "top":elementNewPos.y+"px"});
+            else if (this.options.axis == "x") element.css({"left":elementNewPos.x+"px"});
+            else if (this.options.axis == "y") element.css({"top":elementNewPos.y+"px"});
+            this.OnDrag();
+        }
+    },
+    onTouchEnd:function(event){
+        this.isTouchDown = false;
+        this.OnEnd();
+    },
+    OnStart:function(){ },
+    OnEnd:function(){ },
+    OnDrag:function(){ },
+    touchCoordsFromEvent:function(event, isDown){
+        var touches = [];
+        if (isDown) {
+            if (this.isTouchDevice())
+                for (var tInd = 0; tInd < event.originalEvent.touches.length; tInd++)
+                    touches[tInd] = { x: event.originalEvent.touches[tInd].pageX, y: event.originalEvent.touches[tInd].pageY };
+            else touches[0] = { x: event.pageX, y: event.pageY };
+        }
+        else{
+            if (this.isTouchDevice())
+                for (var tInd = 0; tInd < event.originalEvent.changedTouches.length; tInd++)
+                    touches[tInd] = { x: event.originalEvent.changedTouches[tInd].pageX, y: event.originalEvent.changedTouches[tInd].pageY };
+            else touches[0] = { x: event.pageX, y: event.pageY };
+        }
+        return touches;
+    },
+    isTouchDevice:function(){
+        return "ontouchstart" in document;
+    }
+}
+
+
+
+
+
+
