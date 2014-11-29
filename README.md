@@ -86,7 +86,7 @@ drag.js
 
 
 /* Drag.js
- * Developed by Lapiz
+ 
  * Version 0.8
  * 30.06.14
  *
