@@ -6,6 +6,36 @@ scroll-bar
 var rightScroll = $("<div id=\"scropMain_con\"><div id=\"scrollMain\"></div></div>");
 
 
+/////
+
+#scropMain_con {
+position: absolute;
+/* top: 10%; */
+left: 100%;
+width: 5%;
+height: 94%;
+border-top: 2px solid #063A21;
+border-right: 2px solid #063A21;
+border-bottom: 2px solid #063A21;
+border-left: 2px solid #063A21;
+background: #D4e8a6;
+}
+
+#scrollMain {
+position: absolute;
+top: 0%;
+left: 0%;
+width: 100%;
+height: 30px;
+border-radius: 8px;
+-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.498039);
+background-color: rgba(0, 0, 0, 0.498039);
+cursor: pointer;
+}
+
+//////////////////////////
+
+
 	var draggableObject = new Drag($("#scrollMain"), {axis:"y"});
 	draggableObject.OnDrag = function(){
 		enableReset();
